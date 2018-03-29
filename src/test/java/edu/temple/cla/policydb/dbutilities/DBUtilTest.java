@@ -1,0 +1,142 @@
+/* 
+ * Copyright (c) 2018, Temple University
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * * Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ * * Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ * * All advertising materials features or use of this software must display 
+ *   the following  acknowledgement
+ *   This product includes software developed by Temple University
+ * * Neither the name of the copyright holder nor the names of its 
+ *   contributors may be used to endorse or promote products derived 
+ *   from this software without specific prior written permission. 
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+package edu.temple.cla.policydb.dbutilities;
+
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+/**
+ *
+ * @author Paul Wolfgang
+ */
+public class DBUtilTest {
+    
+    public DBUtilTest() {
+    }
+    
+    @Before
+    public void setUp() {
+    }
+
+//    @Test
+//    public void testConvertToLegalName() {
+//        System.out.println("convertToLegalName");
+//        String s = "";
+//        StringBuilder expResult = null;
+//        StringBuilder result = DBUtil.convertToLegalName(s);
+//        assertEquals(expResult, result);
+//        fail("The test case is a prototype.");
+//    }
+//
+//    @Test
+//    public void testHexString() {
+//        System.out.println("hexString");
+//        byte[] bytes = null;
+//        StringBuilder expResult = null;
+//        StringBuilder result = DBUtil.hexString(bytes);
+//        assertEquals(expResult, result);
+//        fail("The test case is a prototype.");
+//    }
+//
+//    @Test
+//    public void testToHex() {
+//        System.out.println("toHex");
+//        int b = 0;
+//        char expResult = ' ';
+//        char result = DBUtil.toHex(b);
+//        assertEquals(expResult, result);
+//        fail("The test case is a prototype.");
+//    }
+//
+    @Test
+    public void testDoubleQuotes() {
+        System.out.println("doubleQuotes");
+        String s = "    Hello 'world'    ";
+        String expResult = "Hello ''world''";
+        StringBuilder result = DBUtil.doubleQuotes(s);
+        assertEquals(expResult, result.toString());
+    }
+//
+//    @Test
+//    public void testInsertRow() throws Exception {
+//        System.out.println("insertRow");
+//        ResultSet destRS = null;
+//        ResultSet sourceRS = null;
+//        List<ColumnMetaData> columnList = null;
+//        DBUtil.insertRow(destRS, sourceRS, columnList);
+//        fail("The test case is a prototype.");
+//    }
+//
+//    @Test
+//    public void testBuildValuesList() throws Exception {
+//        System.out.println("buildValuesList");
+//        ResultSet sourceRS = null;
+//        List<ColumnMetaData> metaDataList = null;
+//        String expResult = "";
+//        String result = DBUtil.buildValuesList(sourceRS, metaDataList);
+//        assertEquals(expResult, result);
+//        fail("The test case is a prototype.");
+//    }
+//
+//    @Test
+//    public void testBuildSqlInsertStatement() {
+//        System.out.println("buildSqlInsertStatement");
+//        String tableName = "";
+//        List<ColumnMetaData> metaDataList = null;
+//        String expResult = "";
+//        String result = DBUtil.buildSqlInsertStatement(tableName, metaDataList);
+//        assertEquals(expResult, result);
+//        fail("The test case is a prototype.");
+//    }
+//
+//    @Test
+//    public void testBuildSqlCreateTableStatement() {
+//        System.out.println("buildSqlCreateTableStatement");
+//        String tableName = "";
+//        List<ColumnMetaData> metaDataList = null;
+//        String expResult = "";
+//        String result = DBUtil.buildSqlCreateTableStatement(tableName, metaDataList);
+//        assertEquals(expResult, result);
+//        fail("The test case is a prototype.");
+//    }
+
+    @Test
+    public void testRemoveCommas() {
+        System.out.println("removeCommas");
+        String s = "123,456,789.00";
+        String expResult = "123456789.00";
+        String result = DBUtil.removeCommas(s);
+        assertEquals(expResult, result);
+    }
+    
+}
