@@ -31,6 +31,8 @@
  */
 package edu.temple.cla.policydb.dbutilities;
 
+import java.sql.ResultSet;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -48,36 +50,15 @@ public class DBUtilTest {
     public void setUp() {
     }
 
-//    @Test
-//    public void testConvertToLegalName() {
-//        System.out.println("convertToLegalName");
-//        String s = "";
-//        StringBuilder expResult = null;
-//        StringBuilder result = DBUtil.convertToLegalName(s);
-//        assertEquals(expResult, result);
-//        fail("The test case is a prototype.");
-//    }
-//
-//    @Test
-//    public void testHexString() {
-//        System.out.println("hexString");
-//        byte[] bytes = null;
-//        StringBuilder expResult = null;
-//        StringBuilder result = DBUtil.hexString(bytes);
-//        assertEquals(expResult, result);
-//        fail("The test case is a prototype.");
-//    }
-//
-//    @Test
-//    public void testToHex() {
-//        System.out.println("toHex");
-//        int b = 0;
-//        char expResult = ' ';
-//        char result = DBUtil.toHex(b);
-//        assertEquals(expResult, result);
-//        fail("The test case is a prototype.");
-//    }
-//
+    @Test
+    public void testHexString() {
+        System.out.println("hexString");
+        byte[] bytes = new byte[]{(byte)1,(byte)35,(byte)69,(byte)103,(byte)137,(byte)171,(byte)205,(byte)239};
+        String expResult = "0x0123456789ABCDEF";
+        String result = DBUtil.hexString(bytes).toString();
+        assertEquals(expResult, result);
+    }
+
     @Test
     public void testDoubleQuotes() {
         System.out.println("doubleQuotes");
@@ -86,39 +67,28 @@ public class DBUtilTest {
         StringBuilder result = DBUtil.doubleQuotes(s);
         assertEquals(expResult, result.toString());
     }
-//
-//    @Test
-//    public void testInsertRow() throws Exception {
-//        System.out.println("insertRow");
-//        ResultSet destRS = null;
-//        ResultSet sourceRS = null;
-//        List<ColumnMetaData> columnList = null;
-//        DBUtil.insertRow(destRS, sourceRS, columnList);
-//        fail("The test case is a prototype.");
-//    }
-//
-//    @Test
-//    public void testBuildValuesList() throws Exception {
-//        System.out.println("buildValuesList");
-//        ResultSet sourceRS = null;
-//        List<ColumnMetaData> metaDataList = null;
-//        String expResult = "";
-//        String result = DBUtil.buildValuesList(sourceRS, metaDataList);
-//        assertEquals(expResult, result);
-//        fail("The test case is a prototype.");
-//    }
-//
-//    @Test
-//    public void testBuildSqlInsertStatement() {
-//        System.out.println("buildSqlInsertStatement");
-//        String tableName = "";
-//        List<ColumnMetaData> metaDataList = null;
-//        String expResult = "";
-//        String result = DBUtil.buildSqlInsertStatement(tableName, metaDataList);
-//        assertEquals(expResult, result);
-//        fail("The test case is a prototype.");
-//    }
-//
+
+    @Test
+    public void testBuildValuesList() throws Exception {
+        System.out.println("buildValuesList");
+        ResultSet sourceRS = new CommonMockResultSet();
+        List<ColumnMetaData> metaDataList = ColumnMetaDataTest.getColumnMetaDataList();
+        String expResult = "('1', 'First Item', '2018-01-01 00:00:00.0', 12)";
+        sourceRS.next();
+        String result = DBUtil.buildValuesList(sourceRS, metaDataList);
+        assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testBuildSqlInsertStatement() {
+        System.out.println("buildSqlInsertStatement");
+        String tableName = "TestTable";
+        List<ColumnMetaData> metaDataList = ColumnMetaDataTest.getColumnMetaDataList();;
+        String expResult = "INSERT INTO TestTable (ID, Abstract, DateDecided, Code) VALUES ";
+        String result = DBUtil.buildSqlInsertStatement(tableName, metaDataList);
+        assertEquals(expResult, result);
+    }
+
 //    @Test
 //    public void testBuildSqlCreateTableStatement() {
 //        System.out.println("buildSqlCreateTableStatement");

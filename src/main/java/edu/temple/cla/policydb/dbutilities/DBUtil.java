@@ -139,65 +139,6 @@ public class DBUtil {
     }
     
     /**
-     * Insert a row copying from one database to another
-     * @param destRS The destination result set
-     * @param sourceRS The source result set
-     * @param columnList List of columns to be copied
-     * @throws SQLException
-     * @throws Exception 
-     */
-    public static void insertRow(ResultSet destRS, ResultSet sourceRS,
-            List<ColumnMetaData> columnList)
-            throws SQLException, Exception {
-        destRS.moveToInsertRow();
-        for (ColumnMetaData metaData : columnList) {
-            int columnType = metaData.getDataType();
-            String columnName = metaData.getColumnName();
-            String newColumnName = metaData.getNewColumnName();
-            switch (columnType) {
-                case java.sql.Types.BINARY:
-                case java.sql.Types.VARBINARY:
-                    byte[] binValue = sourceRS.getBytes(columnName);
-                    destRS.updateBytes(newColumnName, binValue);
-                    break;
-                case java.sql.Types.CHAR:
-                case java.sql.Types.VARCHAR:
-                case java.sql.Types.LONGVARCHAR:
-                    String sValue = sourceRS.getString(columnName);
-                    destRS.updateString(newColumnName, sValue);
-                    break;
-                case java.sql.Types.REAL:
-                    float fValue = sourceRS.getFloat(columnName);
-                    destRS.updateFloat(newColumnName, fValue);
-                    break;
-                case java.sql.Types.DOUBLE:
-                    double dValue = sourceRS.getDouble(columnName);
-                    destRS.updateDouble(newColumnName, dValue);
-                    break;
-                case java.sql.Types.BIT:
-                case java.sql.Types.SMALLINT:
-                    short shortValue = sourceRS.getShort(columnName);
-                    destRS.updateShort(newColumnName, shortValue);
-                    break;
-                case java.sql.Types.INTEGER:
-                    int iValue = sourceRS.getInt(columnName);
-                    destRS.updateInt(newColumnName, iValue);
-                    break;
-                case java.sql.Types.TIMESTAMP:
-                    java.sql.Timestamp timeValue = sourceRS.getTimestamp(columnName);
-                    destRS.updateTimestamp(newColumnName, timeValue);
-                    break;
-                default:
-                    System.err.println("Unrecognized type: " + columnType);
-                    System.err.println("Type name: " + metaData.getTypeName());
-                    throw new Exception();
-            }
-        }
-        destRS.insertRow();
-        destRS.moveToCurrentRow();
-    }
-    
-    /**
      * Method to create a value list from a row in a database.
      * @param sourceRS The source Result Set
      * @param metaDataList List of metadata describing the columns.
@@ -275,9 +216,10 @@ public class DBUtil {
      * @return A string of the form INSERT INTO tableName (column names) VALUES
      */
     public static String buildSqlInsertStatement(String tableName, List<ColumnMetaData> metaDataList) {
-        StringBuilder sqlInsertStmt = new StringBuilder();
-        sqlInsertStmt.append("INSERT INTO ");
-        sqlInsertStmt.append(convertToLegalName(tableName));
+        StringBuilder sqlInsertStmt = new StringBuilder()
+            .append("INSERT INTO ")
+            .append(convertToLegalName(tableName))
+            .append(" ");
         StringJoiner sj1 = new StringJoiner(", ", "(", ")");
         metaDataList.forEach(metaData -> {
             sj1.add(convertToLegalName(metaData.getColumnName()));
@@ -286,61 +228,7 @@ public class DBUtil {
         sqlInsertStmt.append(" VALUES ");
         return sqlInsertStmt.toString();
     }
-
-    /**
-     * Method to create a CREATE TABLE statement. If a column named ID is found
-     * it is set as the primary key, otherwise an ID column is added.
-     * @param tableName The table name
-     * @param metaDataList The metadata describing the columns
-     * @return A CREATE TABLE statement
-     */
-    public static String buildSqlCreateTableStatement(String tableName, List<ColumnMetaData> metaDataList) {
-        StringBuilder sqlCreateTableStmt = new StringBuilder();
-        sqlCreateTableStmt.append("CREATE TABLE ");
-        sqlCreateTableStmt.append(convertToLegalName(tableName));
-        sqlCreateTableStmt.append("( ");
-        boolean foundID = false;
-        for (ColumnMetaData metaData : metaDataList) {
-            String columnName = metaData.getColumnName();
-            String typeName = metaData.getTypeName();
-            int columnSize = metaData.getColumnSize();
-            if ("ID".equals(columnName)) {
-                foundID = true;
-            }
-            sqlCreateTableStmt.append(convertToLegalName(columnName));
-            sqlCreateTableStmt.append(" ");
-            if (typeName.equalsIgnoreCase("LONGCHAR")) {
-                sqlCreateTableStmt.append("TEXT, ");
-            } else if (typeName.equalsIgnoreCase("DATETIME")) {
-                sqlCreateTableStmt.append("DATETIME, ");
-            } else if (typeName.equalsIgnoreCase("INTEGER")
-                    || typeName.equalsIgnoreCase("INT")) {
-                sqlCreateTableStmt.append("INT, ");
-            } else if (typeName.equalsIgnoreCase("SMALLINT")
-                    || typeName.equalsIgnoreCase("BIT")) {
-                sqlCreateTableStmt.append("SMALLINT, ");
-            } else if (typeName.equalsIgnoreCase("DOUBLE")
-                    || typeName.equalsIgnoreCase("REAL")) {
-                sqlCreateTableStmt.append("DOUBLE, ");
-            } else if (typeName.equalsIgnoreCase("COUNTER")) {
-                sqlCreateTableStmt.append("INT, ");
-            } else {
-                sqlCreateTableStmt.append(typeName);
-                sqlCreateTableStmt.append("(");
-                sqlCreateTableStmt.append(columnSize);
-                sqlCreateTableStmt.append("), ");
-            }
-        }
-        sqlCreateTableStmt.delete(sqlCreateTableStmt.length() - 2, sqlCreateTableStmt.length());
-        if (!foundID) {
-            sqlCreateTableStmt.append(", ID INT AUTO_INCREMENT ");
-        }
-        sqlCreateTableStmt.append(", PRIMARY KEY (ID) ");
-        sqlCreateTableStmt.append(" );");
-
-        return sqlCreateTableStmt.toString();
-    }
-    
+   
     /**
      * Method to remove commas from a string.
      * @param s The input string

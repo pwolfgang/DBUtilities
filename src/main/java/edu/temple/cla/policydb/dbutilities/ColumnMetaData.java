@@ -35,6 +35,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Class to represent column meta data.
@@ -59,7 +60,7 @@ public class ColumnMetaData {
      * @param columnSize    Column size (characters)
      * @param decimalDigits Number of decimal digits if floating
      */
-    private ColumnMetaData(String columnName, int dataType, String typeName, 
+    protected ColumnMetaData(String columnName, int dataType, String typeName, 
             int columnSize, int decimalDigits) {
         this.columnName = columnName;
         this.newColumnName = DBUtil.convertToLegalName(columnName).toString();
@@ -133,6 +134,36 @@ public class ColumnMetaData {
         return decimalDigits;
     }
     
+    @Override
+    public String toString() {
+        return String.format("COLUMN_NAME: %s, DATA_TYPE: %d, TYPE_NAME: %s, COLUMN_SIZE: %d, DECIMAL_DIGITS %d", 
+                columnName, dataType, typeName, columnSize, decimalDigits);
+    }
     
-    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        if (this.getClass() == o.getClass()) {
+            ColumnMetaData other = (ColumnMetaData) o;
+            return  this.columnName.equals(other.columnName) &&
+                    this.columnSize == other.columnSize &&
+                    this.dataType == other.dataType &&
+                    this.decimalDigits == other.decimalDigits &&
+                    this.typeName.equals(other.typeName);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 59 * hash + Objects.hashCode(this.columnName);
+        hash = 59 * hash + this.dataType;
+        hash = 59 * hash + Objects.hashCode(this.typeName);
+        hash = 59 * hash + this.columnSize;
+        hash = 59 * hash + this.decimalDigits;
+        return hash;
+    }  
 }
