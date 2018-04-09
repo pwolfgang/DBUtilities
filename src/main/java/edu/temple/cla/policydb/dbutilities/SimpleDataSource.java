@@ -36,7 +36,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
@@ -44,17 +43,16 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 /**
- * A simple data source for getting database connections.
- * It uses the driver manager to obtain the connections.
+ * A simple data source for getting database connections. It uses the driver
+ * manager to obtain the connections.
  */
 public class SimpleDataSource implements AutoCloseable, DataSource {
 
     private final String url;
     private String username;
     private String password;
-    
+
     private int loginTimeout = Integer.MAX_VALUE;
-    
 
     /**
      * Initializes the data source.
@@ -64,28 +62,31 @@ public class SimpleDataSource implements AutoCloseable, DataSource {
      * @throws java.io.IOException
      * @throws java.lang.ClassNotFoundException
      */
-    public SimpleDataSource(String fileName)
-            throws IOException, ClassNotFoundException {
-        File file = new File(fileName);
-        if (file.exists()) {
-            Properties props = new Properties();
-            FileInputStream in = new FileInputStream(file);
-            props.load(in);
+    public SimpleDataSource(String fileName) {
+        try {
+            File file = new File(fileName);
+            if (file.exists()) {
+                Properties props = new Properties();
+                FileInputStream in = new FileInputStream(file);
+                props.load(in);
 
-            String driver = props.getProperty("jdbc.driver");
-            url = props.getProperty("jdbc.url");
-            username = props.getProperty("jdbc.username");
-            password = props.getProperty("jdbc.password");
-            if (username == null) {
-                username = "";
-            }
-            if (password == null) {
-                password = "";
-            }
+                String driver = props.getProperty("jdbc.driver");
+                url = props.getProperty("jdbc.url");
+                username = props.getProperty("jdbc.username");
+                password = props.getProperty("jdbc.password");
+                if (username == null) {
+                    username = "";
+                }
+                if (password == null) {
+                    password = "";
+                }
 
-            Class.forName(driver);
-        } else {
-            throw new ClassNotFoundException(fileName);
+                Class.forName(driver);
+            } else {
+                throw new ClassNotFoundException(fileName);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -104,40 +105,42 @@ public class SimpleDataSource implements AutoCloseable, DataSource {
     public Connection getConnection() throws SQLException {
         return DriverManager.getConnection(url, username.trim(), password.trim());
     }
-    
+
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
         return DriverManager.getConnection(url, username, password);
     }
-    
+
     @Override
-    public int getLoginTimeout() {return loginTimeout;}
-    
+    public int getLoginTimeout() {
+        return loginTimeout;
+    }
+
     @Override
     public void setLoginTimeout(int loginTimeout) {
         this.loginTimeout = loginTimeout;
     }
-    
+
     @Override
     public PrintWriter getLogWriter() {
         return null;
     }
-    
+
     @Override
     public void setLogWriter(PrintWriter pw) {
         // Do nothing.
     }
-    
+
     @Override
     public boolean isWrapperFor(Class<?> iface) {
         return false;
     }
-    
+
     @Override
     public <T> T unwrap(Class<T> iface) {
         return null;
     }
-    
+
     @Override
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         throw new SQLFeatureNotSupportedException();
