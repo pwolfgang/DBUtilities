@@ -172,9 +172,7 @@ public class DBUtil {
                 case java.sql.Types.VARCHAR:
                 case java.sql.Types.LONGVARCHAR:
                     String sValue = sourceRS.getString(columnName);
-                    valuesList.add("\'");
-                    valuesList.add(doubleQuotes(sValue));
-                    valuesList.add("\'");
+                    valuesList.add("'" + doubleQuotes(sValue) + "'");
                     break;
                 case java.sql.Types.REAL:
                     float fValue = sourceRS.getFloat(columnName);
@@ -196,9 +194,7 @@ public class DBUtil {
                 case java.sql.Types.TIMESTAMP:
                     java.sql.Timestamp timeValue = sourceRS.getTimestamp(columnName);
                     if (timeValue != null) {
-                        valuesList.add("\'");
-                        valuesList.add(timeValue.toString());
-                        valuesList.add("\'");
+                        valuesList.add("'" + timeValue.toString() + "'");
                     } else {
                         valuesList.add("NULL");
                     }
