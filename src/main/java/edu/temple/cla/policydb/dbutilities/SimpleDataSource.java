@@ -59,32 +59,25 @@ public class SimpleDataSource implements AutoCloseable, DataSource {
      *
      * @param fileName the name of the property file that contains the database
      * driver, URL, username, and password.
-     * @throws java.io.IOException
-     * @throws java.lang.ClassNotFoundException
      */
     public SimpleDataSource(String fileName) {
         try {
             File file = new File(fileName);
-            if (file.exists()) {
-                Properties props = new Properties();
-                FileInputStream in = new FileInputStream(file);
-                props.load(in);
+            Properties props = new Properties();
+            FileInputStream in = new FileInputStream(file);
+            props.load(in);
 
-                String driver = props.getProperty("jdbc.driver");
-                url = props.getProperty("jdbc.url");
-                username = props.getProperty("jdbc.username");
-                password = props.getProperty("jdbc.password");
-                if (username == null) {
-                    username = "";
-                }
-                if (password == null) {
-                    password = "";
-                }
-
-                Class.forName(driver);
-            } else {
-                throw new ClassNotFoundException(fileName);
+            String driver = props.getProperty("jdbc.driver");
+            url = props.getProperty("jdbc.url");
+            username = props.getProperty("jdbc.username");
+            password = props.getProperty("jdbc.password");
+            if (username == null) {
+                username = "";
             }
+            if (password == null) {
+                password = "";
+            }
+            Class.forName(driver);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
