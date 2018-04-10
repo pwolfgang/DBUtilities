@@ -63,21 +63,31 @@ public class DBUtil {
 	    sb.insert(0, '_');
 	for (int i = 0; i < sb.length(); ) {
 	    char c = sb.charAt(i);
-	    if (c == ' ' || c == '/' || c == ')' || c == '(' || c == ':') {
-		sb.setCharAt(i, '_');
-		i++;
-	    } else if (c == '-') {
-		sb.deleteCharAt(i);
-	    } else if (c == '#') {
-		sb.setCharAt(i, 'N');
-		sb.insert(i+1, 'o');
-            } else if (c == '&') {
-                sb.setCharAt(i, 'a');
-                sb.insert(i+1, 'n');
-                sb.insert(i+2, 'd');
-	    } else {
-		i++;
-	    }
+            switch (c) {
+                case ' ':
+                case '/':
+                case ')':
+                case '(':
+                case ':':
+                    sb.setCharAt(i, '_');
+                    i++;
+                    break;
+                case '-':
+                    sb.deleteCharAt(i);
+                    break;
+                case '#':
+                    sb.setCharAt(i, 'N');
+                    sb.insert(i+1, 'o');
+                    break;
+                case '&':
+                    sb.setCharAt(i, 'a');
+                    sb.insert(i+1, 'n');
+                    sb.insert(i+2, 'd');
+                    break;
+                default:
+                    i++;
+                    break;
+            }
 	}
 	return sb;
     }
@@ -148,7 +158,7 @@ public class DBUtil {
      */
     public static String buildValuesList(ResultSet sourceRS,
             List<ColumnMetaData> metaDataList) throws SQLException, Exception {
-        StringBuilder valuesList = new StringBuilder("(");
+        StringJoiner valuesList = new StringJoiner(", ", "(", ")");
         for (ColumnMetaData metaData : metaDataList) {
             int columnType = metaData.getDataType();
             String columnName = metaData.getColumnName();
@@ -156,46 +166,37 @@ public class DBUtil {
                 case java.sql.Types.BINARY:
                 case java.sql.Types.VARBINARY:
                     byte[] binValue = sourceRS.getBytes(columnName);
-                    valuesList.append(hexString(binValue));
-                    valuesList.append(", ");
+                    valuesList.add(hexString(binValue));
                     break;
                 case java.sql.Types.CHAR:
                 case java.sql.Types.VARCHAR:
                 case java.sql.Types.LONGVARCHAR:
                     String sValue = sourceRS.getString(columnName);
-                    valuesList.append("\'");
-                    valuesList.append(doubleQuotes(sValue));
-                    valuesList.append("\', ");
+                    valuesList.add("'" + doubleQuotes(sValue) + "'");
                     break;
                 case java.sql.Types.REAL:
                     float fValue = sourceRS.getFloat(columnName);
-                    valuesList.append(fValue);
-                    valuesList.append(", ");
+                    valuesList.add(Double.toString(fValue));
                     break;
                 case java.sql.Types.DOUBLE:
                     double dValue = sourceRS.getDouble(columnName);
-                    valuesList.append(dValue);
-                    valuesList.append(", ");
+                    valuesList.add(Double.toString(dValue));
                     break;
                 case java.sql.Types.BIT:
                 case java.sql.Types.SMALLINT:
                     short shortValue = sourceRS.getShort(columnName);
-                    valuesList.append(shortValue);
-                    valuesList.append(", ");
+                    valuesList.add(Integer.toString(shortValue));
                     break;
                 case java.sql.Types.INTEGER:
                     int iValue = sourceRS.getInt(columnName);
-                    valuesList.append(iValue);
-                    valuesList.append(", ");
+                    valuesList.add(Integer.toString(iValue));
                     break;
                 case java.sql.Types.TIMESTAMP:
                     java.sql.Timestamp timeValue = sourceRS.getTimestamp(columnName);
                     if (timeValue != null) {
-                        valuesList.append("\'");
-                        valuesList.append(timeValue);
-                        valuesList.append("\', ");
+                        valuesList.add("'" + timeValue.toString() + "'");
                     } else {
-                        valuesList.append("NULL, ");
+                        valuesList.add("NULL");
                     }
                     break;
                 default:
@@ -204,8 +205,6 @@ public class DBUtil {
                     throw new Exception();
             }
         }
-        valuesList.delete(valuesList.length() - 2, valuesList.length());
-        valuesList.append(")");
         return valuesList.toString();
     }
     

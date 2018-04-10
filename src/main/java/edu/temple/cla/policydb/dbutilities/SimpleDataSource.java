@@ -36,7 +36,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
@@ -44,30 +43,26 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 /**
- * A simple data source for getting database connections.
- * It uses the driver manager to obtain the connections.
+ * A simple data source for getting database connections. It uses the driver
+ * manager to obtain the connections.
  */
 public class SimpleDataSource implements AutoCloseable, DataSource {
 
     private final String url;
     private String username;
     private String password;
-    
+
     private int loginTimeout = Integer.MAX_VALUE;
-    
 
     /**
      * Initializes the data source.
      *
      * @param fileName the name of the property file that contains the database
      * driver, URL, username, and password.
-     * @throws java.io.IOException
-     * @throws java.lang.ClassNotFoundException
      */
-    public SimpleDataSource(String fileName)
-            throws IOException, ClassNotFoundException {
-        File file = new File(fileName);
-        if (file.exists()) {
+    public SimpleDataSource(String fileName) {
+        try {
+            File file = new File(fileName);
             Properties props = new Properties();
             FileInputStream in = new FileInputStream(file);
             props.load(in);
@@ -82,10 +77,9 @@ public class SimpleDataSource implements AutoCloseable, DataSource {
             if (password == null) {
                 password = "";
             }
-
             Class.forName(driver);
-        } else {
-            throw new ClassNotFoundException(fileName);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -104,40 +98,42 @@ public class SimpleDataSource implements AutoCloseable, DataSource {
     public Connection getConnection() throws SQLException {
         return DriverManager.getConnection(url, username.trim(), password.trim());
     }
-    
+
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
         return DriverManager.getConnection(url, username, password);
     }
-    
+
     @Override
-    public int getLoginTimeout() {return loginTimeout;}
-    
+    public int getLoginTimeout() {
+        return loginTimeout;
+    }
+
     @Override
     public void setLoginTimeout(int loginTimeout) {
         this.loginTimeout = loginTimeout;
     }
-    
+
     @Override
     public PrintWriter getLogWriter() {
         return null;
     }
-    
+
     @Override
     public void setLogWriter(PrintWriter pw) {
         // Do nothing.
     }
-    
+
     @Override
     public boolean isWrapperFor(Class<?> iface) {
         return false;
     }
-    
+
     @Override
     public <T> T unwrap(Class<T> iface) {
         return null;
     }
-    
+
     @Override
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         throw new SQLFeatureNotSupportedException();

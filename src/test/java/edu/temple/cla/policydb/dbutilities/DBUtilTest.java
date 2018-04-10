@@ -83,7 +83,7 @@ public class DBUtilTest {
     public void testBuildSqlInsertStatement() {
         System.out.println("buildSqlInsertStatement");
         String tableName = "TestTable";
-        List<ColumnMetaData> metaDataList = ColumnMetaDataTest.getColumnMetaDataList();;
+        List<ColumnMetaData> metaDataList = ColumnMetaDataTest.getColumnMetaDataList();
         String expResult = "INSERT INTO TestTable (ID, Abstract, DateDecided, Code) VALUES ";
         String result = DBUtil.buildSqlInsertStatement(tableName, metaDataList);
         assertEquals(expResult, result);
