@@ -35,7 +35,6 @@ import commondb.mock.MockResultSet;
 import java.sql.ResultSet;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.commons.collections.CollectionUtils;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
