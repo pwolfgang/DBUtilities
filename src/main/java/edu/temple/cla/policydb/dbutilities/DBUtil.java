@@ -33,36 +33,47 @@ package edu.temple.cla.policydb.dbutilities;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.StringJoiner;
 
 /**
  * Data base utilities
+ *
  * @author Paul Wolfgang
  */
 public class DBUtil {
-    
+
     /**
      * Convert a name to a legal format for use in MySQL
+     *
      * @param s The original name
      * @return The converted equivalent
      */
     public static StringBuilder convertToLegalName(String s) {
-        if (s.isEmpty()) return new StringBuilder();
+        if (s.isEmpty()) {
+            return new StringBuilder();
+        }
         StringBuilder sb = new StringBuilder(s);
-	if (s.equalsIgnoreCase("END") 
-            || s.equalsIgnoreCase("Foreign")
-            || s.equalsIgnoreCase("Exec")
-            || s.equalsIgnoreCase("File") 
-            || s.equalsIgnoreCase("Index")
-            || s.equalsIgnoreCase("Table")){
-	    sb.insert(0, '_');
-	    sb.append('_');
-	}
-	if (Character.isDigit(sb.charAt(0)))
-	    sb.insert(0, '_');
-	for (int i = 0; i < sb.length(); ) {
-	    char c = sb.charAt(i);
+        if (s.equalsIgnoreCase("END")
+                || s.equalsIgnoreCase("Foreign")
+                || s.equalsIgnoreCase("Exec")
+                || s.equalsIgnoreCase("File")
+                || s.equalsIgnoreCase("Index")
+                || s.equalsIgnoreCase("Table")) {
+            sb.insert(0, '_');
+            sb.append('_');
+        }
+        if (Character.isDigit(sb.charAt(0))) {
+            sb.insert(0, '_');
+        }
+        for (int i = 0; i < sb.length();) {
+            char c = sb.charAt(i);
             switch (c) {
                 case ' ':
                 case '/':
@@ -77,61 +88,74 @@ public class DBUtil {
                     break;
                 case '#':
                     sb.setCharAt(i, 'N');
-                    sb.insert(i+1, 'o');
+                    sb.insert(i + 1, 'o');
                     break;
                 case '&':
                     sb.setCharAt(i, 'a');
-                    sb.insert(i+1, 'n');
-                    sb.insert(i+2, 'd');
+                    sb.insert(i + 1, 'n');
+                    sb.insert(i + 2, 'd');
                     break;
                 default:
                     i++;
                     break;
             }
-	}
-	return sb;
+        }
+        return sb;
     }
 
     /**
      * Convert an array of bytes into an equivalent hex constant
+     *
      * @param bytes The input array of bytes
      * @return Equivalent hex constant string
      */
     public static StringBuilder hexString(byte[] bytes) {
-	StringBuilder result = new StringBuilder("0x");
-	for (byte b : bytes) {
-	    result.append(toHex((b >> 4) & 0xF));
-	    result.append(toHex(b & 0xF));
-	}
-	return result;
+        StringBuilder result = new StringBuilder("0x");
+        for (byte b : bytes) {
+            result.append(toHex((b >> 4) & 0xF));
+            result.append(toHex(b & 0xF));
+        }
+        return result;
     }
 
     /**
      * Convert an int in the range 0 - 15 to equivalent hex character
+     *
      * @param b Input integer
-     * @return  Equivalent hex character
+     * @return Equivalent hex character
      */
     public static char toHex(int b) {
-	if (b < 10) return (char)(b + '0');
-	return (char)(b - 10 + 'A');
+        if (b < 10) {
+            return (char) (b + '0');
+        }
+        return (char) (b - 10 + 'A');
     }
 
     /**
-     * Trim input string and replace all occurrences of a single quote with 
-     * two single quotes and newline characters with "\n".
+     * Trim input string and replace all occurrences of a single quote with two
+     * single quotes and newline characters with "\n".
+     *
      * @param s Input string
      * @return Converted result
      */
     public static StringBuilder doubleQuotes(String s) {
-	StringBuilder result = new StringBuilder();
-	if (s == null) return result;
+        StringBuilder result = new StringBuilder();
+        if (s == null) {
+            return result;
+        }
         char[] sArray = s.toCharArray();
-        if (sArray.length==0) return result;
+        if (sArray.length == 0) {
+            return result;
+        }
         int firstNonBlank = 0;
-        while (sArray[firstNonBlank] == ' ') firstNonBlank++;
-        int lastNonBlank = sArray.length-1;
-        while (sArray[lastNonBlank] == ' ') lastNonBlank--;
-	for (int i = firstNonBlank; i <= lastNonBlank; i++) {
+        while (sArray[firstNonBlank] == ' ') {
+            firstNonBlank++;
+        }
+        int lastNonBlank = sArray.length - 1;
+        while (sArray[lastNonBlank] == ' ') {
+            lastNonBlank--;
+        }
+        for (int i = firstNonBlank; i <= lastNonBlank; i++) {
             char c = sArray[i];
             switch (c) {
                 case '\'':
@@ -144,17 +168,18 @@ public class DBUtil {
                     result.append(c);
                     break;
             }
-	}
-	return result;
+        }
+        return result;
     }
-    
+
     /**
      * Method to create a value list from a row in a database.
+     *
      * @param sourceRS The source Result Set
      * @param metaDataList List of metadata describing the columns.
      * @return A comma separated list of string representing the data.
      * @throws SQLException
-     * @throws Exception 
+     * @throws Exception
      */
     public static String buildValuesList(ResultSet sourceRS,
             List<ColumnMetaData> metaDataList) throws SQLException, Exception {
@@ -207,18 +232,83 @@ public class DBUtil {
         }
         return valuesList.toString();
     }
-    
+
+    /**
+     * Method to create a value list from Map of column names to values.
+     *
+     * @param fields The map of column names to values.
+     * @param metaDataList List of metadata describing the columns.
+     * @return A comma separated list of string representing the data.
+     */
+    public static String buildValuesList(Map<String, Object> fields,
+            List<ColumnMetaData> metaDataList) {
+        StringJoiner valuesList = new StringJoiner(", ", "(", ")");
+        for (ColumnMetaData metaData : metaDataList) {
+            int columnType = metaData.getDataType();
+            String columnName = metaData.getColumnName();
+            Object fieldValue = fields.get(columnName);
+            if (fieldValue != null) {
+                switch (columnType) {
+                    case java.sql.Types.BINARY:
+                    case java.sql.Types.VARBINARY:
+                        byte[] binValue = (byte[]) fields.get(columnName);
+                        valuesList.add(hexString(binValue));
+                        break;
+                    case java.sql.Types.CHAR:
+                    case java.sql.Types.VARCHAR:
+                    case java.sql.Types.LONGVARCHAR:
+                        String sValue = (String) fields.get(columnName);
+                        valuesList.add("'" + doubleQuotes(sValue) + "'");
+                        break;
+                    case java.sql.Types.REAL:
+                    case java.sql.Types.DOUBLE:
+                    case java.sql.Types.BIT:
+                    case java.sql.Types.SMALLINT:
+                    case java.sql.Types.INTEGER:
+                        if (fieldValue instanceof Number) {
+                            Number fValue = (Number) fields.get(columnName);
+                            valuesList.add(fValue.toString());
+                        } else if (fieldValue instanceof Boolean) {
+                            valuesList.add((Boolean) fieldValue ? "1" : "0");
+                        } else {
+                            throw new RuntimeException("Unrecognized number value at column " 
+                                    + columnName + " type " + fieldValue.getClass());
+                        }
+                        break;
+                    case java.sql.Types.TIMESTAMP:
+                        Date dateValue = (Date) fields.get(columnName);
+                        if (dateValue != null) {
+                            Instant javaInstant = Instant.ofEpochMilli(dateValue.getTime());
+                            LocalDateTime javaDateTime = LocalDateTime.ofInstant(javaInstant, ZoneOffset.UTC);
+                            String javaDateString = javaDateTime.format(ISO_LOCAL_DATE);
+                            valuesList.add("'" + javaDateString + "'");
+                        } else {
+                            valuesList.add("NULL");
+                        }
+                        break;
+                    default:
+                        throw new RuntimeException("Unrecognized type: "
+                                + columnType + "Column: " + columnName);
+                }
+            } else {
+                valuesList.add("NULL");
+            }
+        }
+        return valuesList.toString();
+    }
+
     /**
      * Method to create an insert statement.
+     *
      * @param tableName The table to insert into
      * @param metaDataList The metadata describing the columns
      * @return A string of the form INSERT INTO tableName (column names) VALUES
      */
     public static String buildSqlInsertStatement(String tableName, List<ColumnMetaData> metaDataList) {
         StringBuilder sqlInsertStmt = new StringBuilder()
-            .append("INSERT INTO ")
-            .append(convertToLegalName(tableName))
-            .append(" ");
+                .append("INSERT INTO ")
+                .append(convertToLegalName(tableName))
+                .append(" ");
         StringJoiner sj1 = new StringJoiner(", ", "(", ")");
         metaDataList.forEach(metaData -> {
             sj1.add(convertToLegalName(metaData.getColumnName()));
@@ -227,9 +317,10 @@ public class DBUtil {
         sqlInsertStmt.append(" VALUES ");
         return sqlInsertStmt.toString();
     }
-   
+
     /**
      * Method to remove commas from a string.
+     *
      * @param s The input string
      * @return A copy of the input without commas.
      */
@@ -238,7 +329,9 @@ public class DBUtil {
         char[] out = new char[in.length];
         int j = 0;
         for (char c : in) {
-            if (c != ',') out[j++] = c;
+            if (c != ',') {
+                out[j++] = c;
+            }
         }
         return new String(out, 0, j);
     }
