@@ -73,7 +73,7 @@
                         <include>**/*</include>
                     </includes>
                     <server>github</server>
-                    <repositoryName>DBUtils</repositoryName>      <!-- github repo name -->
+                    <repositoryName>DBUtilities</repositoryName>      <!-- github repo name -->
                     <repositoryOwner>pwolfgang</repositoryOwner>    <!-- github username  -->
                 </configuration>
                 <executions>
