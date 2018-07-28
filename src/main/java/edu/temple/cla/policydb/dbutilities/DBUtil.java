@@ -133,7 +133,8 @@ public class DBUtil {
 
     /**
      * Trim input string and replace all occurrences of a single quote with two
-     * single quotes and newline characters with "\n".
+     * single quotes and newline characters with "\n" and remove trailing '\'
+     * characters.
      *
      * @param s Input string
      * @return Converted result
@@ -168,6 +169,11 @@ public class DBUtil {
                     result.append(c);
                     break;
             }
+        }
+        int totalLength = result.length();
+        char lastChar = result.charAt(totalLength - 1);
+        if (lastChar == '\\') {
+            result.deleteCharAt(totalLength - 1);
         }
         return result;
     }
