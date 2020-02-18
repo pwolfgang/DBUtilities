@@ -31,7 +31,6 @@
  */
 package edu.temple.cla.policydb.dbutilities;
 
-import commondb.mock.MockResultSet;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
